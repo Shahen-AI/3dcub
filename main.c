@@ -37,7 +37,7 @@ int worldMap[mapWidth][mapHeight]=
 };
 
 
-typedef struct  s_data {
+struct  s_data {
 	void        *img;
 	char        *addr;
 	int         bits_per_pixel;
@@ -45,38 +45,49 @@ typedef struct  s_data {
 	int         endian;
 }               t_data;
 
-typedef struct  s_vars {
+struct  s_vars {
 	void        *mlx;
 	void        *win;
 }               t_vars;
 
-void            my_mlx_pixel_put(t_data *data, int x, int y, int color)
+void            my_mlx_pixel_put(int x, int y, int color)
 {
 	char    *dst;
 
-	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
+	dst = t_data.addr + (y * t_data.line_length + x * (t_data.bits_per_pixel / 8));
 	*(unsigned int*)dst = color;
 }
 
-void             key_hook(int keycode, t_vars *vars, void *img)
+void             key_hook(int keycode, void *img)
 {
 	if (keycode == 0)
 		printf("Hello from key_hook!\n");
 	else if (keycode == 53)
 	{
 		// mlx_destroy_image(vars->mlx, img);
-		mlx_destroy_window(vars->mlx, vars->win);
+		mlx_destroy_window(t_vars.mlx, t_vars.win);
 		exit(1);
 	}
 }
 
+int		verLine(int x, int drawStart, int drawEnd, int color)
+{
+	int y = drawStart;
+	while (y < drawEnd)
+	{
+		my_mlx_pixel_put(x, y, color);
+		++y;
+	}
+	return (0);
+}
+
 int             main(void)
 {
-	// t_vars  vars;
 	// t_data  img;
 	// int     img_width;
 	// int     img_height;
 	// char    *relative_path = "./test.xpm";
+	t_vars.mlx = mlx_init();
 
 
 	double posX = 22, posY = 12;  //x and y start position
@@ -86,7 +97,6 @@ int             main(void)
 	double time = 0; //time of current frame
 	double oldTime = 0; //time of previous frame
 	mlx_new_window(screenWidth, screenHeight, 0, "Raycaster");
-
 	
 		for(int x = 0; x < screenWidth; x++)
 		{
@@ -116,8 +126,8 @@ int             main(void)
 			int side; //was a NS or a EW wall hit?
 
 			// Alternative code for deltaDist in case division through zero is not supported
-			 deltaDistX = (rayDirY == 0) ? 0 : ((rayDirX == 0) ? 1 : fabs(1 / rayDirX));
-			 deltaDistY = (rayDirX == 0) ? 0 : ((rayDirY == 0) ? 1 : fabs(1 / rayDirY));
+			deltaDistX = (rayDirY == 0) ? 0 : ((rayDirX == 0) ? 1 : fabs(1 / rayDirX));
+			deltaDistY = (rayDirX == 0) ? 0 : ((rayDirY == 0) ? 1 : fabs(1 / rayDirY));
 
 			//calculate step and initial sideDist
 			if (rayDirX < 0)
@@ -147,15 +157,15 @@ int             main(void)
 				//jump to next map square, OR in x-direction, OR in y-direction
 				if (sideDistX < sideDistY)
 				{
-				sideDistX += deltaDistX;
-				mapX += stepX;
-				side = 0;
+					sideDistX += deltaDistX;
+					mapX += stepX;
+					side = 0;
 				}
 				else
 				{
-				sideDistY += deltaDistY;
-				mapY += stepY;
-				side = 1;
+					sideDistY += deltaDistY;
+					mapY += stepY;
+					side = 1;
 				}
 				//Check if ray has hit a wall
 				if (worldMap[mapX][mapY] > 0) hit = 1;
@@ -186,7 +196,7 @@ int             main(void)
 			}
 
 			//give x and y sides different brightness
-			if (side == 1) {color = color / 2;}
+			if (side == 1) color = color / 2;
 
 			//draw the pixels of the stripe as a vertical line
 			verLine(x, drawStart, drawEnd, color);
@@ -194,51 +204,51 @@ int             main(void)
 
 			//timing for input and FPS counter
 		oldTime = time;
-		// time = getTicks();
+		time = getTicks();
 		double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
 		// print(1.0 / frameTime); //FPS counter
-		// redraw();
-		// cls();
+		redraw();
+		cls();
 
 		//speed modifiers
 		double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
 		double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
 
-		// readKeys();
-		//move forward if no wall in front of you
-		// if (keyDown(SDLK_UP))
-		// {
-		// if(worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)] == 0) posX += dirX * moveSpeed;
-		// if(worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)] == 0) posY += dirY * moveSpeed;
-		// }
-		// //move backwards if no wall behind you
-		// if (keyDown(SDLK_DOWN))
-		// {
-		// if(worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)] == 0) posX -= dirX * moveSpeed;
-		// if(worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)] == 0) posY -= dirY * moveSpeed;
-		// }
-		// //rotate to the right
-		// if (keyDown(SDLK_RIGHT))
-		// {
-		// //both camera direction and camera plane must be rotated
-		// double oldDirX = dirX;
-		// dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-		// dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-		// double oldPlaneX = planeX;
-		// planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-		// planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-		// }
-		// //rotate to the left
-		// if (keyDown(SDLK_LEFT))
-		// {
-		// //both camera direction and camera plane must be rotated
-		// double oldDirX = dirX;
-		// dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-		// dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-		// double oldPlaneX = planeX;
-		// planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-		// planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-		// }
+		readKeys();
+		// move forward if no wall in front of you
+		if (keyDown(SDLK_UP))
+		{
+		if(worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)] == 0) posX += dirX * moveSpeed;
+		if(worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)] == 0) posY += dirY * moveSpeed;
+		}
+		//move backwards if no wall behind you
+		if (keyDown(SDLK_DOWN))
+		{
+		if(worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)] == 0) posX -= dirX * moveSpeed;
+		if(worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)] == 0) posY -= dirY * moveSpeed;
+		}
+		//rotate to the right
+		if (keyDown(SDLK_RIGHT))
+		{
+		//both camera direction and camera plane must be rotated
+		double oldDirX = dirX;
+		dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+		dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+		double oldPlaneX = planeX;
+		planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+		planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+		}
+		//rotate to the left
+		if (keyDown(SDLK_LEFT))
+		{
+		//both camera direction and camera plane must be rotated
+		double oldDirX = dirX;
+		dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+		dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+		double oldPlaneX = planeX;
+		planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+		planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+		}
   
 
 
@@ -248,7 +258,7 @@ int             main(void)
 	
 	
 	
-	// vars.mlx = mlx_init();
+	// 
 	// vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
 	// img.img = mlx_new_image(vars.mlx, 1920, 1080);
 	// // img.img = mlx_xpm_file_to_image(vars.mlx, relative_path, &img_width, &img_height);
@@ -264,5 +274,5 @@ int             main(void)
 	// mlx_put_image_to_window(vars.mlx, vars.win, img.img, 400, 700);
 	// mlx_key_hook(vars.win, key_hook, &vars);
 
-	mlx_loop(vars.mlx);
+	mlx_loop(t_vars.mlx);
 }
