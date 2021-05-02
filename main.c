@@ -45,6 +45,15 @@ struct  	s_data
 	int     endian;
 }           data;
 
+struct		s_dataTex
+{
+	void    *imgTex;
+	char    *addrTex;
+	int     bits_per_pixel_tex;
+	int     line_length_tex;
+	int     endianTex;
+}           dataTex;
+
 struct  	s_vars
 {
 	void    *mlx;
@@ -104,13 +113,13 @@ int key_release(int keycode)
 	return 0;
 }
 
-unsigned int get_pixel(int x, int y)
+int get_pixel(int x, int y)
 {
-	unsigned int color;
-	char    	*dst;
+	int 	color;
+	char   	*dst;
 
-	dst = data.addr + (y * data.line_length + x * (data.bits_per_pixel / 8));
-	color = *(unsigned int *)dst;
+	dst = dataTex.addrTex + (y * dataTex.line_length_tex + x * (dataTex.bits_per_pixel_tex / 8));
+	color = *(int *)dst;
 	return (color);
 }
 
@@ -122,9 +131,10 @@ void            my_mlx_pixel_put(int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-int		verLine(int x, int drawStart, int drawEnd, int color)
+int		verLine(int x, int drawStart, int drawEnd)
 {
 	int y = 0;
+	int color;
 	int topColor = 0x00ADEAEA;
 	int bottomColor = 0x00696969;
 	while (y < drawStart)
@@ -134,7 +144,21 @@ int		verLine(int x, int drawStart, int drawEnd, int color)
 	}
 	while (y < drawEnd)
 	{
-		my_mlx_pixel_put(x, y, color);
+			int texX = 0, texY;
+			while (texX < 64)
+			{
+				texY = 0;
+				while (texY < 64)
+				{
+					for (int i = 0; i < (drawEnd - drawStart) / 64; ++i)
+					{
+						color = get_pixel(texX, texY);
+						my_mlx_pixel_put(x, y, color);
+					}
+					texY++;
+				}
+				++texX;
+			}
 		++y;
 	}
 	while (y < screenHeight)
@@ -234,21 +258,34 @@ int draw_image()
 		if(drawEnd >= screenHeight)drawEnd = screenHeight - 1;
 
 		//choose wall color
-		int color;
-		switch(worldMap[mapX][mapY])
-		{
-			case 1:  color = 0x008B4513; break;
-			case 2:  color = 0x00FFF8DC; break;
-			case 3:  color = 0x00FFF8DC; break;
-			case 4:  color = 0x00FFF8DC; break; 
-			default: color = 0x00FFF8DC; break; 
-		}
+		// int color;
+		// switch(worldMap[mapX][mapY])
+		// {
+		// 	case 1:  color = 0x008B4513; break;
+		// 	case 2:  color = 0x00FFF8DC; break;
+		// 	case 3:  color = 0x00FFF8DC; break;
+		// 	case 4:  color = 0x00FFF8DC; break; 
+		// 	default: color = 0x00FFF8DC; break; 
+		// }
+		
+		// //give x and y sides different brightness
+		// if (side == 1) color = color / 2;
 
-		//give x and y sides different brightness
-		if (side == 1) color = color / 2;
 
-		//draw the pixels of the stripe as a vertical line
-		verLine(x, drawStart, drawEnd, color);
+		// int i = 0, j;
+		// //draw the pixels of the stripe as a vertical line
+		verLine(x, drawStart, drawEnd);
+
+		// while (i < 64)
+		// {
+		// 	j = 0;
+		// 	while (j < 64)
+		// 	{
+		// 		verLine(x, drawStart, drawEnd, get_pixel(i, j));
+		// 		++j;
+		// 	}
+		// 	++i;
+		// }
 	}
 	return 0;
 }
@@ -256,7 +293,7 @@ int draw_image()
 int		key_hook()
 {
 
-	double moveSpeed = /*frameTime * */ 0.08; //the constant value is in squares/second
+	double moveSpeed = /*frameTime * */ 0.1; //the constant value is in squares/second
 	double rotSpeed = /*frameTime * */ 0.03; //the constant value is in radians/second
 	
 	// move forward if no wall in front of you
@@ -266,7 +303,6 @@ int		key_hook()
 			positions.posX += positions.dirX * moveSpeed;
 		if(worldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirY * moveSpeed)] == 0)
 			positions.posY += positions.dirY * moveSpeed;
-		draw_image();
 	}
 	//move backwards if no wall behind you
 	if (keys.down)
@@ -275,7 +311,6 @@ int		key_hook()
 			positions.posX -= positions.dirX * moveSpeed;
 		if(worldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirY * moveSpeed)] == 0)
 			positions.posY -= positions.dirY * moveSpeed;
-		draw_image();
 	}
 	//rotate to the right
 	if (keys.right)
@@ -287,7 +322,6 @@ int		key_hook()
 		double oldPlaneX = positions.planeX;
 		positions.planeX = positions.planeX * cos(-rotSpeed) - positions.planeY * sin(-rotSpeed);
 		positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
-		draw_image();
 	}
 	//rotate to the left
 	if (keys.left)
@@ -299,16 +333,16 @@ int		key_hook()
 		double oldPlaneX = positions.planeX;
 		positions.planeX = positions.planeX * cos(rotSpeed) - positions.planeY * sin(rotSpeed);
 		positions.planeY = oldPlaneX * sin(rotSpeed) + positions.planeY * cos(rotSpeed);
-		draw_image();
 	}
-
 	return 0;
 }
 
 int frame()
 {
-	mlx_do_sync(vars.mlx);
+	// mlx_do_sync(vars.mlx);
     key_hook();
+	draw_image();
+	mlx_clear_window(vars.mlx, vars.win);
     mlx_put_image_to_window(vars.mlx, vars.win, data.img, 0, 0);
     return (0);
 }
@@ -329,6 +363,10 @@ int             main(void)
 	data.img = mlx_new_image(vars.mlx, 1920, 1080);
 		
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
+
+	int w, h;
+	dataTex.imgTex = mlx_xpm_file_to_image(vars.mlx, "./textures/greystone.xpm", &w, &h);
+	dataTex.addrTex = mlx_get_data_addr(dataTex.imgTex, &dataTex.bits_per_pixel_tex, &dataTex.line_length_tex, &dataTex.endianTex);
 
 	draw_image();
 	
