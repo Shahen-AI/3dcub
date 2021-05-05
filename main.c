@@ -7,6 +7,8 @@
 #define mapHeight 24
 #define screenWidth 1920
 #define screenHeight 1080
+#define texHeight 64
+#define texWidth 64
 
 int worldMap[mapWidth][mapHeight]=
 {
@@ -64,8 +66,10 @@ struct 	s_keys
 {
 	int down;
 	int up;
-	int right;
+	int rotRight;
+	int rotLeft;
 	int left;
+	int right;
 } 		keys;
 
 struct s_position
@@ -84,11 +88,11 @@ int close()
 int key_press(int keycode)
 {
 	if(keycode == 0 || keycode == 123) // left or a
-		keys.left = 1;
+		keys.rotLeft = 1;
 	if(keycode == 1 || keycode == 125) // down or s
 		keys.down = 1;
 	if(keycode == 2 || keycode == 124) // right or d
-		keys.right = 1;
+		keys.rotRight = 1;
 	if(keycode == 13 || keycode == 126) // up or w
 		keys.up = 1;
 
@@ -103,23 +107,23 @@ int key_press(int keycode)
 int key_release(int keycode)
 {
 	if(keycode == 0 || keycode == 123) // left or a
-		keys.left = 0;
+		keys.rotLeft = 0;
 	if(keycode == 1 || keycode == 125) // down or s
 		keys.down = 0;
 	if(keycode == 2 || keycode == 124) // right or d
-		keys.right = 0;
+		keys.rotRight = 0;
 	if(keycode == 13 || keycode == 126) // up or w
 		keys.up = 0;
 	return 0;
 }
 
-int get_pixel(int x, int y)
+unsigned int get_pixel(int x, int y)
 {
-	int 	color;
+	unsigned int 	color;
 	char   	*dst;
 
 	dst = dataTex.addrTex + (y * dataTex.line_length_tex + x * (dataTex.bits_per_pixel_tex / 8));
-	color = *(int *)dst;
+	color = *(unsigned int *)dst;
 	return (color);
 }
 
@@ -131,43 +135,59 @@ void            my_mlx_pixel_put(int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-int		verLine(int x, int drawStart, int drawEnd)
-{
-	int y = 0;
-	int color;
-	int topColor = 0x00ADEAEA;
-	int bottomColor = 0x00696969;
-	while (y < drawStart)
-	{
-		my_mlx_pixel_put(x, y, topColor);
-		++y;
-	}
-	while (y < drawEnd)
-	{
-			int texX = 0, texY;
-			while (texX < 64)
-			{
-				texY = 0;
-				while (texY < 64)
-				{
-					for (int i = 0; i < (drawEnd - drawStart) / 64; ++i)
-					{
-						color = get_pixel(texX, texY);
-						my_mlx_pixel_put(x, y, color);
-					}
-					texY++;
-				}
-				++texX;
-			}
-		++y;
-	}
-	while (y < screenHeight)
-	{
-		my_mlx_pixel_put(x, y, bottomColor);
-		++y;
-	}
-	return (0);
-}
+// int		verLine(int x, int drawStart, int drawEnd, int color)
+// {
+// 	int y = 0;
+// 	// int color;
+// 	int topColor = 0x00ADEAEA;
+// 	int bottomColor = 0x00696969;
+// 	while (y < drawStart)
+// 	{
+// 		my_mlx_pixel_put(x, y, topColor);
+// 		++y;
+// 	}
+// 	while (y < drawEnd)
+// 	{
+// 		// 	int texX = 0, texY;
+// 		// 	while (texX < 64)
+// 		// 	{
+// 		// 		texY = 0;
+// 		// 		while (texY < 64)
+// 		// 		{
+// 		// 			for (int i = 0; i < (drawEnd - drawStart) / 64; ++i)
+// 		// 			{
+// 		// 				color = get_pixel(texX, texY);
+// 		// 				my_mlx_pixel_put(x, y, color);
+// 		// 			}
+// 		// 			texY++;
+// 		// 		}
+// 		// 		++texX;
+// 		// 	}
+// 		// ++y;
+
+
+// 		// How much to increase the texture coordinate per screen pixel
+// 		// double step = 1.0 * texHeight / lineHeight;
+// 		// // Starting texture coordinate
+// 		// double texPos = (drawStart -  / 2 + lineHeight / 2) * step;
+// 		// // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+//         // int texY = (int)texPos & (texHeight - 1);
+//         // texPos += step;
+//         // Uint32 color = texture[texNum][texHeight * texY + texX];
+//         // //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+//         // if(side == 1) color = (color >> 1) & 8355711;
+//         // buffer[y][x] = color;
+
+// 		// my_mlx_pixel_put(x, y, color);
+// 		++y;
+// 	}
+// 	while (y < screenHeight)
+// 	{
+// 		my_mlx_pixel_put(x, y, bottomColor);
+// 		++y;
+// 	}
+// 	return (0);
+// }
 
 int draw_image()
 {
@@ -258,7 +278,7 @@ int draw_image()
 		if(drawEnd >= screenHeight)drawEnd = screenHeight - 1;
 
 		//choose wall color
-		// int color;
+		int color;
 		// switch(worldMap[mapX][mapY])
 		// {
 		// 	case 1:  color = 0x008B4513; break;
@@ -271,21 +291,46 @@ int draw_image()
 		// //give x and y sides different brightness
 		// if (side == 1) color = color / 2;
 
+		// /*
 
-		// int i = 0, j;
+		int y = 0;
+	int topColor = 0x00ADEAEA;
+	int bottomColor = 0x00696969;
+	while (y < drawStart)
+	{
+		my_mlx_pixel_put(x, y, topColor);
+		++y;
+	}
+	double WallX;
+	if (side == 0)
+		WallX = positions.posY + perpWallDist * rayDirY;
+	else WallX = positions.posX + perpWallDist * rayDirX;
+	WallX -= floor(WallX);
+	int texX = (int)(WallX * (double)texWidth);
+	if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+	if (side && rayDirY < 0) texX = texWidth - texX - 1;
+	double step = 1.0 * texHeight / lineHeight;
+      // Starting texture coordinate
+    double texPos = (drawStart - screenHeight / 2 + lineHeight / 2) * step;
+    for (y = drawStart; y<drawEnd; y++)
+    {
+			int texY = (int)texPos & (texHeight - 1);
+			texPos += step;
+			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+			color = get_pixel(texX, texY);//texture[texNum][texHeight * texY + texX];
+			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+			if(side == 1) color = (color >> 1) & 8355711;
+			my_mlx_pixel_put(x, y, color);
+      }
+	while (y < screenHeight)
+	{
+		my_mlx_pixel_put(x, y, bottomColor);
+		++y;
+	}
+
 		// //draw the pixels of the stripe as a vertical line
-		verLine(x, drawStart, drawEnd);
+		// verLine(x, drawStart, drawEnd, color);
 
-		// while (i < 64)
-		// {
-		// 	j = 0;
-		// 	while (j < 64)
-		// 	{
-		// 		verLine(x, drawStart, drawEnd, get_pixel(i, j));
-		// 		++j;
-		// 	}
-		// 	++i;
-		// }
 	}
 	return 0;
 }
@@ -313,7 +358,7 @@ int		key_hook()
 			positions.posY -= positions.dirY * moveSpeed;
 	}
 	//rotate to the right
-	if (keys.right)
+	if (keys.rotRight)
 	{
 		//both camera direction and camera plane must be rotated
 		double oldDirX = positions.dirX;
@@ -324,7 +369,7 @@ int		key_hook()
 		positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
 	}
 	//rotate to the left
-	if (keys.left)
+	if (keys.rotLeft)
 	{
 		//both camera direction and camera plane must be rotated
 		double oldDirX = positions.dirX;
@@ -339,7 +384,7 @@ int		key_hook()
 
 int frame()
 {
-	// mlx_do_sync(vars.mlx);
+	mlx_do_sync(vars.mlx);
     key_hook();
 	draw_image();
 	mlx_clear_window(vars.mlx, vars.win);
