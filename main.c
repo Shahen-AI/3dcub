@@ -1,14 +1,4 @@
-#include <mlx.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#define mapWidth 24
-#define mapHeight 24
-#define screenWidth 1920
-#define screenHeight 1080
-#define texHeight 64
-#define texWidth 64
+#include "cub3d.h"
 
 int worldMap[mapWidth][mapHeight]=
 {
@@ -38,47 +28,6 @@ int worldMap[mapWidth][mapHeight]=
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-struct  	s_data
-{
-	void    *img;
-	char    *addr;
-	int     bits_per_pixel;
-	int     line_length;
-	int     endian;
-}           data;
-
-struct		s_dataTex
-{
-	void    *imgTex;
-	char    *addrTex;
-	int     bits_per_pixel_tex;
-	int     line_length_tex;
-	int     endianTex;
-}           dataTex;
-
-struct  	s_vars
-{
-	void    *mlx;
-	void    *win;
-}           vars;
-
-struct 	s_keys
-{
-	int down;
-	int up;
-	int rotRight;
-	int rotLeft;
-	int left;
-	int right;
-} 		keys;
-
-struct s_position
-{
-	double posX, posY;  //x and y start position
-	double dirX , dirY; //initial direction vector
-	double planeX, planeY; //the 2d raycaster version of camera plane
-}		positions;
-
 int close()
 {
 	exit(0);
@@ -87,11 +36,15 @@ int close()
 
 int key_press(int keycode)
 {
-	if(keycode == 0 || keycode == 123) // left or a
+	if(keycode == 123) // left
 		keys.rotLeft = 1;
+	if(keycode == 0) // a
+		keys.left = 1;
+	if(keycode == 2) // d
+		keys.right = 1;
 	if(keycode == 1 || keycode == 125) // down or s
 		keys.down = 1;
-	if(keycode == 2 || keycode == 124) // right or d
+	if(keycode == 124) // right
 		keys.rotRight = 1;
 	if(keycode == 13 || keycode == 126) // up or w
 		keys.up = 1;
@@ -106,11 +59,15 @@ int key_press(int keycode)
 
 int key_release(int keycode)
 {
-	if(keycode == 0 || keycode == 123) // left or a
+	if(keycode == 123) // left
 		keys.rotLeft = 0;
+	if(keycode == 0) // a
+		keys.left = 0;
+	if(keycode == 2) // d
+		keys.right = 0;
 	if(keycode == 1 || keycode == 125) // down or s
 		keys.down = 0;
-	if(keycode == 2 || keycode == 124) // right or d
+	if(keycode == 124) // right
 		keys.rotRight = 0;
 	if(keycode == 13 || keycode == 126) // up or w
 		keys.up = 0;
@@ -338,10 +295,9 @@ int draw_image()
 int		key_hook()
 {
 
-	double moveSpeed = /*frameTime * */ 0.1; //the constant value is in squares/second
-	double rotSpeed = /*frameTime * */ 0.03; //the constant value is in radians/second
+	double moveSpeed = 0.1;
+	double rotSpeed = 0.03;
 	
-	// move forward if no wall in front of you
 	if (keys.up)
 	{
 		if(worldMap[(int)(positions.posX + positions.dirX * moveSpeed)][(int)(positions.posY)] == 0)
@@ -349,7 +305,6 @@ int		key_hook()
 		if(worldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirY * moveSpeed)] == 0)
 			positions.posY += positions.dirY * moveSpeed;
 	}
-	//move backwards if no wall behind you
 	if (keys.down)
 	{
 		if(worldMap[(int)(positions.posX - positions.dirX * moveSpeed)][(int)(positions.posY)] == 0)
@@ -357,10 +312,22 @@ int		key_hook()
 		if(worldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirY * moveSpeed)] == 0)
 			positions.posY -= positions.dirY * moveSpeed;
 	}
-	//rotate to the right
+	if (keys.right)
+	{
+		if(worldMap[(int)(positions.posX + positions.dirY * moveSpeed)][(int)(positions.posY)] == 0)
+			positions.posX += positions.dirY * moveSpeed;
+		if(worldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirX * moveSpeed)] == 0)
+			positions.posY -= positions.dirX * moveSpeed;
+	}
+	if (keys.left)
+	{
+		if(worldMap[(int)(positions.posX - positions.dirY * moveSpeed)][(int)(positions.posY)] == 0)
+			positions.posX -= positions.dirY * moveSpeed;
+		if(worldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirX * moveSpeed)] == 0)
+			positions.posY += positions.dirX * moveSpeed;
+	}
 	if (keys.rotRight)
 	{
-		//both camera direction and camera plane must be rotated
 		double oldDirX = positions.dirX;
 		positions.dirX = positions.dirX * cos(-rotSpeed) - positions.dirY * sin(-rotSpeed);
 		positions.dirY = oldDirX * sin(-rotSpeed) + positions.dirY * cos(-rotSpeed);
@@ -368,10 +335,8 @@ int		key_hook()
 		positions.planeX = positions.planeX * cos(-rotSpeed) - positions.planeY * sin(-rotSpeed);
 		positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
 	}
-	//rotate to the left
 	if (keys.rotLeft)
 	{
-		//both camera direction and camera plane must be rotated
 		double oldDirX = positions.dirX;
 		positions.dirX = positions.dirX * cos(rotSpeed) - positions.dirY * sin(rotSpeed);
 		positions.dirY = oldDirX * sin(rotSpeed) + positions.dirY * cos(rotSpeed);
