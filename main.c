@@ -28,7 +28,7 @@ int worldMap[mapWidth][mapHeight]=
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-int close()
+int cub_close()
 {
 	exit(0);
 	return 0;
@@ -52,7 +52,7 @@ int key_press(int keycode)
 	if (keycode == 53)
 	{
 		mlx_destroy_window(vars.mlx, vars.win);
-		close();
+		cub_close();
 	}
 	return 0;
 }
@@ -138,7 +138,7 @@ void            my_mlx_pixel_put(int x, int y, int color)
 // 		// my_mlx_pixel_put(x, y, color);
 // 		++y;
 // 	}
-// 	while (y < screenHeight)
+// 	while (y < global.screenHeight)
 // 	{
 // 		my_mlx_pixel_put(x, y, bottomColor);
 // 		++y;
@@ -148,10 +148,10 @@ void            my_mlx_pixel_put(int x, int y, int color)
 
 int draw_image()
 {
-	for(int x = 0; x < screenWidth; x++)
+	for(int x = 0; x < global.screenWidth; x++)
 	{
 		//calculate ray position and direction
-		double cameraX = 2 * x / (double)(screenWidth) - 1; //x-coordinate in camera space
+		double cameraX = 2 * x / (double)(global.screenWidth) - 1; //x-coordinate in camera space
 		double rayDirX = positions.dirX + positions.planeX * cameraX;
 		double rayDirY = positions.dirY + positions.planeY * cameraX;
 
@@ -226,13 +226,13 @@ int draw_image()
 		else           perpWallDist = (mapY - positions.posY + (1 - stepY) / 2) / rayDirY;
 
 		//Calculate height of line to draw on screen
-		int lineHeight = (int)(screenHeight / perpWallDist);
+		int lineHeight = (int)(global.screenHeight / perpWallDist);
 
 		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + screenHeight / 2;
+		int drawStart = -lineHeight / 2 + global.screenHeight / 2;
 		if(drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + screenHeight / 2;
-		if(drawEnd >= screenHeight)drawEnd = screenHeight - 1;
+		int drawEnd = lineHeight / 2 + global.screenHeight / 2;
+		if(drawEnd >= global.screenHeight)drawEnd = global.screenHeight - 1;
 
 		//choose wall color
 		int color;
@@ -268,7 +268,7 @@ int draw_image()
 	if (side && rayDirY < 0) texX = texWidth - texX - 1;
 	double step = 1.0 * texHeight / lineHeight;
       // Starting texture coordinate
-    double texPos = (drawStart - screenHeight / 2 + lineHeight / 2) * step;
+    double texPos = (drawStart - global.screenHeight / 2 + lineHeight / 2) * step;
     for (y = drawStart; y<drawEnd; y++)
     {
 			int texY = (int)texPos & (texHeight - 1);
@@ -279,7 +279,7 @@ int draw_image()
 			if(side == 1) color = (color >> 1) & 8355711;
 			my_mlx_pixel_put(x, y, color);
       }
-	while (y < screenHeight)
+	while (y < global.screenHeight)
 	{
 		my_mlx_pixel_put(x, y, bottomColor);
 		++y;
@@ -368,7 +368,7 @@ int             main(void)
 	positions.planeX = 0;
 	positions.planeY = 0.66; //the 2d raycaster version of camera plane
 
-	vars.win  = mlx_new_window(vars.mlx, screenWidth, screenHeight, "Cub3D");
+	vars.win  = mlx_new_window(vars.mlx, global.screenWidth, global.screenHeight, "Cub3D");
 	
 	data.img = mlx_new_image(vars.mlx, 1920, 1080);
 		
@@ -379,8 +379,8 @@ int             main(void)
 	dataTex.addrTex = mlx_get_data_addr(dataTex.imgTex, &dataTex.bits_per_pixel_tex, &dataTex.line_length_tex, &dataTex.endianTex);
 
 	draw_image();
-	
-	mlx_hook(vars.win, 17, 1L << 17, close, 0);
+	parser();
+	mlx_hook(vars.win, 17, 1L << 17, cub_close, 0);
 	mlx_hook(vars.win, 2, 1L << 0, key_press, 0);
 	mlx_hook(vars.win, 3, 1L << 0, key_release , 0);
 	// mlx_key_hook(vars.win, key_hook, &vars);

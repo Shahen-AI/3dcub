@@ -1,11 +1,26 @@
-R 1920 1080
-NO ./../textures/greystone.xpm
-SO ./../textures/greystone.xpm
-WE ./../textures/greystone.xpm
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+    NO ./../textures/greystone.xpm
+               
+               
+                R 1920 1080
+  
+  SO ./../textures/greystone.xpm
+  
+  
+  
+                WE ./../textures/greystone.xpm
 EA ./../textures/greystone.xpm
 S ./../textures/greystone.xpm
+
+
 F 220,100,0
 C 225,30,0
+
         1111111111111111111111111
         1000000000110000000000001
         1011000001110000002000001

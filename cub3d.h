@@ -5,15 +5,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "gnl/get_next_line.h"
+#include <fcntl.h>
 
 #define mapWidth 24
 #define mapHeight 24
-#define screenWidth 1920
-#define screenHeight 1080
 #define texHeight 64
 #define texWidth 64
-
-
+// #define screenWidth 1920
+// #define screenHeight 1080
+struct		s_global
+{
+	int screenWidth;
+	int screenHeight;
+}			global;
 
 struct  	s_data
 {
@@ -55,6 +60,11 @@ struct s_position
 	double dirX , dirY; //initial direction vector
 	double planeX, planeY; //the 2d raycaster version of camera plane
 }		positions;
+
+int parser();
+int draw_image();
+int	key_hook();
+int frame();
 
 
 #endif
