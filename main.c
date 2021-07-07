@@ -1,33 +1,5 @@
 #include "cub3d.h"
 
-int worldMap[mapWidth][mapHeight]=
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-};
-
 int cub_close()
 {
 	exit(0);
@@ -36,19 +8,22 @@ int cub_close()
 
 int key_press(int keycode)
 {
-	if(keycode == 123) // left
+	if(keycode == 123)
 		keys.rotLeft = 1;
-	if(keycode == 0) // a
+	if(keycode == 0)
 		keys.left = 1;
-	if(keycode == 2) // d
+	if(keycode == 2)
 		keys.right = 1;
-	if(keycode == 1 || keycode == 125) // down or s
+	if(keycode == 1)
 		keys.down = 1;
-	if(keycode == 124) // right
+	if(keycode == 124)
 		keys.rotRight = 1;
-	if(keycode == 13 || keycode == 126) // up or w
+	if(keycode == 13)
 		keys.up = 1;
-
+	if(keycode == 48)
+		keys.tab = 1;
+	if(keycode == 257)
+		keys.shift = 1;
 	if (keycode == 53)
 	{
 		mlx_destroy_window(vars.mlx, vars.win);
@@ -59,127 +34,71 @@ int key_press(int keycode)
 
 int key_release(int keycode)
 {
-	if(keycode == 123) // left
+	if(keycode == 123)
 		keys.rotLeft = 0;
-	if(keycode == 0) // a
+	if(keycode == 0)
 		keys.left = 0;
-	if(keycode == 2) // d
+	if(keycode == 2)
 		keys.right = 0;
-	if(keycode == 1 || keycode == 125) // down or s
+	if(keycode == 1)
 		keys.down = 0;
-	if(keycode == 124) // right
+	if(keycode == 124)
 		keys.rotRight = 0;
-	if(keycode == 13 || keycode == 126) // up or w
+	if(keycode == 13)
 		keys.up = 0;
+	if(keycode == 48)
+		keys.tab = 0;
+	if(keycode == 257)
+		keys.shift = 0;
 	return 0;
 }
 
-unsigned int get_pixel(int x, int y)
+unsigned int get_pixel(int x, int y, t_data *dataTex)
 {
 	unsigned int 	color;
 	char   	*dst;
 
-	dst = dataTex.addrTex + (y * dataTex.line_length_tex + x * (dataTex.bits_per_pixel_tex / 8));
+	dst = dataTex->addr + (y * dataTex->line_length + x * (dataTex->bits_per_pixel / 8));
 	color = *(unsigned int *)dst;
 	return (color);
 }
 
-void            my_mlx_pixel_put(int x, int y, int color)
+void            my_mlx_pixel_put(int x, int y, int color, t_parser* parser)
 {
 	char    *dst;
 
-	dst = data.addr + (y * data.line_length + x * (data.bits_per_pixel / 8));
+	dst = parser->data.addr + (y * parser->data.line_length + x * (parser->data.bits_per_pixel / 8));
 	*(unsigned int*)dst = color;
 }
 
-// int		verLine(int x, int drawStart, int drawEnd, int color)
-// {
-// 	int y = 0;
-// 	// int color;
-// 	int topColor = 0x00ADEAEA;
-// 	int bottomColor = 0x00696969;
-// 	while (y < drawStart)
-// 	{
-// 		my_mlx_pixel_put(x, y, topColor);
-// 		++y;
-// 	}
-// 	while (y < drawEnd)
-// 	{
-// 		// 	int texX = 0, texY;
-// 		// 	while (texX < 64)
-// 		// 	{
-// 		// 		texY = 0;
-// 		// 		while (texY < 64)
-// 		// 		{
-// 		// 			for (int i = 0; i < (drawEnd - drawStart) / 64; ++i)
-// 		// 			{
-// 		// 				color = get_pixel(texX, texY);
-// 		// 				my_mlx_pixel_put(x, y, color);
-// 		// 			}
-// 		// 			texY++;
-// 		// 		}
-// 		// 		++texX;
-// 		// 	}
-// 		// ++y;
-
-
-// 		// How much to increase the texture coordinate per screen pixel
-// 		// double step = 1.0 * texHeight / lineHeight;
-// 		// // Starting texture coordinate
-// 		// double texPos = (drawStart -  / 2 + lineHeight / 2) * step;
-// 		// // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-//         // int texY = (int)texPos & (texHeight - 1);
-//         // texPos += step;
-//         // Uint32 color = texture[texNum][texHeight * texY + texX];
-//         // //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-//         // if(side == 1) color = (color >> 1) & 8355711;
-//         // buffer[y][x] = color;
-
-// 		// my_mlx_pixel_put(x, y, color);
-// 		++y;
-// 	}
-// 	while (y < global.screenHeight)
-// 	{
-// 		my_mlx_pixel_put(x, y, bottomColor);
-// 		++y;
-// 	}
-// 	return (0);
-// }
-
-int draw_image()
+int draw_image(t_parser *parser)
 {
-	for(int x = 0; x < global.screenWidth; x++)
+	double ZBuffer[parser->screenWidth];
+	for(int x = 0; x < parser->screenWidth; x++)
 	{
-		//calculate ray position and direction
-		double cameraX = 2 * x / (double)(global.screenWidth) - 1; //x-coordinate in camera space
+		double cameraX = 2 * x / (double)(parser->screenWidth) - 1;
 		double rayDirX = positions.dirX + positions.planeX * cameraX;
 		double rayDirY = positions.dirY + positions.planeY * cameraX;
 
-		//which box of the map we're in
 		int mapX = (int)(positions.posX);
 		int mapY = (int)(positions.posY);
 
-		//length of ray from current position to next x or y-side
 		double sideDistX;
 		double sideDistY;
 
-		//length of ray from one x or y-side to next x or y-side
 		float deltaDistX = fabs(1 / rayDirX);
 		float deltaDistY = fabs(1 / rayDirY);
 		double perpWallDist;
 
-		//what direction to step in x or y-direction (either +1 or -1)
 		int stepX;
 		int stepY;
 
-		int hit = 0; //was there a wall hit?
-		int side; //was a NS or a EW wall hit?
+		int hit = 0;
+		int side;
 
-		// Alternative code for deltaDist in case division through zero is not supported
 		deltaDistX = (rayDirY == 0) ? 0 : ((rayDirX == 0) ? 1 : fabs(1 / rayDirX));
 		deltaDistY = (rayDirX == 0) ? 0 : ((rayDirY == 0) ? 1 : fabs(1 / rayDirY));
 
-		//calculate step and initial sideDist
 		if (rayDirX < 0)
 		{
 			stepX = -1;
@@ -201,10 +120,8 @@ int draw_image()
 			sideDistY = (mapY + 1.0 - positions.posY) * deltaDistY;
 		}
 
-		//perform DDA
 		while (hit == 0)
 		{
-			//jump to next map square, OR in x-direction, OR in y-direction
 			if (sideDistX < sideDistY)
 			{
 				sideDistX += deltaDistX;
@@ -217,173 +134,296 @@ int draw_image()
 				mapY += stepY;
 				side = 1;
 			}
-			//Check if ray has hit a wall
-			if (worldMap[mapX][mapY] > 0) hit = 1;
+			if (parser->WorldMap[mapX][mapY] == '1') hit = 1;
 		}
 
-		//Calculate distance projected on camera direction (Euclidean distance will give fisheye effect!)
 		if (side == 0) perpWallDist = (mapX - positions.posX + (1 - stepX) / 2) / rayDirX;
 		else           perpWallDist = (mapY - positions.posY + (1 - stepY) / 2) / rayDirY;
 
-		//Calculate height of line to draw on screen
-		int lineHeight = (int)(global.screenHeight / perpWallDist);
+		int lineHeight = (int)(parser->screenHeight / perpWallDist);
 
-		//calculate lowest and highest pixel to fill in current stripe
-		int drawStart = -lineHeight / 2 + global.screenHeight / 2;
+		int drawStart = -lineHeight / 2 + parser->screenHeight / 2;
 		if(drawStart < 0)drawStart = 0;
-		int drawEnd = lineHeight / 2 + global.screenHeight / 2;
-		if(drawEnd >= global.screenHeight)drawEnd = global.screenHeight - 1;
+		int drawEnd = lineHeight / 2 + parser->screenHeight / 2;
+		if(drawEnd >= parser->screenHeight)drawEnd = parser->screenHeight - 1;
 
-		//choose wall color
 		int color;
-		// switch(worldMap[mapX][mapY])
-		// {
-		// 	case 1:  color = 0x008B4513; break;
-		// 	case 2:  color = 0x00FFF8DC; break;
-		// 	case 3:  color = 0x00FFF8DC; break;
-		// 	case 4:  color = 0x00FFF8DC; break; 
-		// 	default: color = 0x00FFF8DC; break; 
-		// }
-		
-		// //give x and y sides different brightness
-		// if (side == 1) color = color / 2;
-
-		// /*
-
 		int y = 0;
-	int topColor = 0x00ADEAEA;
-	int bottomColor = 0x00696969;
-	while (y < drawStart)
-	{
-		my_mlx_pixel_put(x, y, topColor);
-		++y;
-	}
-	double WallX;
-	if (side == 0)
-		WallX = positions.posY + perpWallDist * rayDirY;
-	else WallX = positions.posX + perpWallDist * rayDirX;
-	WallX -= floor(WallX);
-	int texX = (int)(WallX * (double)texWidth);
-	if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-	if (side && rayDirY < 0) texX = texWidth - texX - 1;
-	double step = 1.0 * texHeight / lineHeight;
-      // Starting texture coordinate
-    double texPos = (drawStart - global.screenHeight / 2 + lineHeight / 2) * step;
-    for (y = drawStart; y<drawEnd; y++)
-    {
+		while (y < drawStart)
+		{
+			my_mlx_pixel_put(x, y, parser->topColor, parser);
+			++y;
+		}
+		double WallX;
+		if (side == 0)
+			WallX = positions.posY + perpWallDist * rayDirY;
+		else WallX = positions.posX + perpWallDist * rayDirX;
+		WallX -= floor(WallX);
+		int texX = (int)(WallX * (double)texWidth);
+		if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+		if (side && rayDirY < 0) texX = texWidth - texX - 1;
+		double step = 1.0 * texHeight / lineHeight;
+		double texPos = (drawStart - parser->screenHeight / 2 + lineHeight / 2) * step;
+		for (y = drawStart; y<drawEnd; y++)
+		{
 			int texY = (int)texPos & (texHeight - 1);
 			texPos += step;
-			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-			color = get_pixel(texX, texY);//texture[texNum][texHeight * texY + texX];
-			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+			if (side == 0)
+			{
+				if (stepX > 0)
+					color = get_pixel(texX, texY, &parser->dataTexN);
+				else
+					color = get_pixel(texX, texY, &parser->dataTexS);
+			}
+			else
+			{
+				if (stepY > 0)
+					color = get_pixel(texX, texY, &parser->dataTexW);
+				else
+					color = get_pixel(texX, texY, &parser->dataTexE);
+			}
 			if(side == 1) color = (color >> 1) & 8355711;
-			my_mlx_pixel_put(x, y, color);
-      }
-	while (y < global.screenHeight)
-	{
-		my_mlx_pixel_put(x, y, bottomColor);
-		++y;
+			my_mlx_pixel_put(x, y, color, parser);
+		}
+		while (y < parser->screenHeight)
+		{
+			my_mlx_pixel_put(x, y, parser->bottomColor, parser);
+			++y;
+		}
+		ZBuffer[x] = perpWallDist;
 	}
+	for(int i = 0; i < parser->sprites.count; i++)
+    {
+        parser->sprites.sprites[i]->distance = ((positions.posX - parser->sprites.sprites[i]->x)
+		* ((positions.posX - parser->sprites.sprites[i]->x) + (positions.posY - parser->sprites.sprites[i]->y)
+		* (positions.posY - parser->sprites.sprites[i]->y)));
+    }
+    sort_sprites(parser);
+    for(int i = 0; i < parser->sprites.count; i++)
+    {
+        double spriteX = parser->sprites.sprites[i]->x - positions.posX + 0.5;
+        double spriteY = parser->sprites.sprites[i]->y - positions.posY + 0.5;
 
-		// //draw the pixels of the stripe as a vertical line
-		// verLine(x, drawStart, drawEnd, color);
+        double invDet = 1.0 / (positions.planeX * positions.dirY - positions.dirX * positions.planeY); 
 
-	}
+        double transformX = invDet * (positions.dirY * spriteX - positions.dirX * spriteY);
+        double transformY = invDet * (-positions.planeY * spriteX + positions.planeX * spriteY); 
+
+        int spriteScreenX = (int)((parser->screenWidth / 2) * (1 + transformX / transformY));
+
+        int spriteHeight = abs((int)(parser->screenHeight / (transformY)));
+
+        int drawStartY = -spriteHeight / 2 + parser->screenHeight / 2;
+        if(drawStartY < 0) drawStartY = 0;
+        int drawEndY = spriteHeight / 2 + parser->screenHeight / 2;
+        if(drawEndY >= parser->screenHeight) drawEndY = parser->screenHeight - 1;
+
+        int spriteWidth = abs((int)(parser->screenHeight / (transformY)));
+        int drawStartX = -spriteWidth / 2 + spriteScreenX;
+        if(drawStartX < 0) drawStartX = 0;
+        int drawEndX = spriteWidth / 2 + spriteScreenX;
+        if(drawEndX >= parser->screenWidth) drawEndX = parser->screenWidth - 1;
+        for(int stripe = drawStartX; stripe < drawEndX; stripe++)
+        {
+            int texX = (int)(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * texWidth / spriteWidth) / 256;
+            if(transformY > 0 && stripe > 0 && stripe < parser->screenWidth && transformY < ZBuffer[stripe])
+            {
+                for(int y = drawStartY; y < drawEndY; y++) 
+                {
+                    int d = (y) * 256 - parser->screenHeight * 128 + spriteHeight * 128;
+                    int texY = ((d * texHeight) / spriteHeight) / 256;
+                    if (get_pixel(texX, texY, &parser->dataSpr))
+                        my_mlx_pixel_put(stripe, y,  get_pixel(texX, texY, &parser->dataSpr), parser);
+                }
+            }
+        }
+    }
 	return 0;
 }
 
-int		key_hook()
+int		key_hook(t_parser *parser)
 {
-
-	double moveSpeed = 0.1;
+	double moveSpeed = 0.07;
 	double rotSpeed = 0.03;
-	
+
+	if(keys.shift)
+		moveSpeed *= 2;
 	if (keys.up)
 	{
-		if(worldMap[(int)(positions.posX + positions.dirX * moveSpeed)][(int)(positions.posY)] == 0)
+		if(parser->WorldMap[(int)(positions.posX + positions.dirX * moveSpeed)][(int)(positions.posY)] == '0')
 			positions.posX += positions.dirX * moveSpeed;
-		if(worldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirY * moveSpeed)] == 0)
+		if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirY * moveSpeed)] == '0')
 			positions.posY += positions.dirY * moveSpeed;
 	}
 	if (keys.down)
 	{
-		if(worldMap[(int)(positions.posX - positions.dirX * moveSpeed)][(int)(positions.posY)] == 0)
+		if(parser->WorldMap[(int)(positions.posX - positions.dirX * moveSpeed)][(int)(positions.posY)] == '0')
 			positions.posX -= positions.dirX * moveSpeed;
-		if(worldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirY * moveSpeed)] == 0)
+		if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirY * moveSpeed)] == '0')
 			positions.posY -= positions.dirY * moveSpeed;
 	}
-	if (keys.right)
+	
+	if (parser->NSWEcheck == 1)
 	{
-		if(worldMap[(int)(positions.posX + positions.dirY * moveSpeed)][(int)(positions.posY)] == 0)
-			positions.posX += positions.dirY * moveSpeed;
-		if(worldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirX * moveSpeed)] == 0)
-			positions.posY -= positions.dirX * moveSpeed;
+		if (keys.left)
+		{
+			if(parser->WorldMap[(int)(positions.posX + positions.dirY * moveSpeed)][(int)(positions.posY)] == '0')
+				positions.posX += positions.dirY * moveSpeed;
+			if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirX * moveSpeed)] == '0')
+				positions.posY -= positions.dirX * moveSpeed;
+		}
+		if (keys.right)
+		{
+			if(parser->WorldMap[(int)(positions.posX - positions.dirY * moveSpeed)][(int)(positions.posY)] == '0')
+				positions.posX -= positions.dirY * moveSpeed;
+			if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirX * moveSpeed)] == '0')
+				positions.posY += positions.dirX * moveSpeed;
+		}
+		if (keys.rotLeft)
+		{
+			double oldDirX = positions.dirX;
+			positions.dirX = positions.dirX * cos(-rotSpeed) - positions.dirY * sin(-rotSpeed);
+			positions.dirY = oldDirX * sin(-rotSpeed) + positions.dirY * cos(-rotSpeed);
+			double oldPlaneX = positions.planeX;
+			positions.planeX = positions.planeX * cos(-rotSpeed) - positions.planeY * sin(-rotSpeed);
+			positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
+		}
+		if (keys.rotRight)
+		{
+			double oldDirX = positions.dirX;
+			positions.dirX = positions.dirX * cos(rotSpeed) - positions.dirY * sin(rotSpeed);
+			positions.dirY = oldDirX * sin(rotSpeed) + positions.dirY * cos(rotSpeed);
+			double oldPlaneX = positions.planeX;
+			positions.planeX = positions.planeX * cos(rotSpeed) - positions.planeY * sin(rotSpeed);
+			positions.planeY = oldPlaneX * sin(rotSpeed) + positions.planeY * cos(rotSpeed);
+		}
 	}
-	if (keys.left)
+	else
 	{
-		if(worldMap[(int)(positions.posX - positions.dirY * moveSpeed)][(int)(positions.posY)] == 0)
-			positions.posX -= positions.dirY * moveSpeed;
-		if(worldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirX * moveSpeed)] == 0)
-			positions.posY += positions.dirX * moveSpeed;
-	}
-	if (keys.rotRight)
-	{
-		double oldDirX = positions.dirX;
-		positions.dirX = positions.dirX * cos(-rotSpeed) - positions.dirY * sin(-rotSpeed);
-		positions.dirY = oldDirX * sin(-rotSpeed) + positions.dirY * cos(-rotSpeed);
-		double oldPlaneX = positions.planeX;
-		positions.planeX = positions.planeX * cos(-rotSpeed) - positions.planeY * sin(-rotSpeed);
-		positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
-	}
-	if (keys.rotLeft)
-	{
-		double oldDirX = positions.dirX;
-		positions.dirX = positions.dirX * cos(rotSpeed) - positions.dirY * sin(rotSpeed);
-		positions.dirY = oldDirX * sin(rotSpeed) + positions.dirY * cos(rotSpeed);
-		double oldPlaneX = positions.planeX;
-		positions.planeX = positions.planeX * cos(rotSpeed) - positions.planeY * sin(rotSpeed);
-		positions.planeY = oldPlaneX * sin(rotSpeed) + positions.planeY * cos(rotSpeed);
+		if (keys.right)
+		{
+			if(parser->WorldMap[(int)(positions.posX + positions.dirY * moveSpeed)][(int)(positions.posY)] == '0')
+				positions.posX += positions.dirY * moveSpeed;
+			if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY - positions.dirX * moveSpeed)] == '0')
+				positions.posY -= positions.dirX * moveSpeed;
+		}
+		if (keys.left)
+		{
+			if(parser->WorldMap[(int)(positions.posX - positions.dirY * moveSpeed)][(int)(positions.posY)] == '0')
+				positions.posX -= positions.dirY * moveSpeed;
+			if(parser->WorldMap[(int)(positions.posX)][(int)(positions.posY + positions.dirX * moveSpeed)] == '0')
+				positions.posY += positions.dirX * moveSpeed;
+		}
+		if (keys.rotRight)
+		{
+			double oldDirX = positions.dirX;
+			positions.dirX = positions.dirX * cos(-rotSpeed) - positions.dirY * sin(-rotSpeed);
+			positions.dirY = oldDirX * sin(-rotSpeed) + positions.dirY * cos(-rotSpeed);
+			double oldPlaneX = positions.planeX;
+			positions.planeX = positions.planeX * cos(-rotSpeed) - positions.planeY * sin(-rotSpeed);
+			positions.planeY = oldPlaneX * sin(-rotSpeed) + positions.planeY * cos(-rotSpeed);
+		}
+		if (keys.rotLeft)
+		{
+			double oldDirX = positions.dirX;
+			positions.dirX = positions.dirX * cos(rotSpeed) - positions.dirY * sin(rotSpeed);
+			positions.dirY = oldDirX * sin(rotSpeed) + positions.dirY * cos(rotSpeed);
+			double oldPlaneX = positions.planeX;
+			positions.planeX = positions.planeX * cos(rotSpeed) - positions.planeY * sin(rotSpeed);
+			positions.planeY = oldPlaneX * sin(rotSpeed) + positions.planeY * cos(rotSpeed);
+		}
 	}
 	return 0;
 }
 
-int frame()
+int frame(t_parser* parser)
 {
-	mlx_do_sync(vars.mlx);
-    key_hook();
-	draw_image();
+    key_hook(parser);
 	mlx_clear_window(vars.mlx, vars.win);
-    mlx_put_image_to_window(vars.mlx, vars.win, data.img, 0, 0);
+
+	draw_image(parser);
+    mlx_put_image_to_window(vars.mlx, vars.win, parser->data.img, 0, 0);
+	mlx_do_sync(vars.mlx);
     return (0);
 }
 
-int             main(void)
+void	parser_init(t_parser *parser)
+{
+	parser->screenHeight = 0;
+	parser->screenWidth = 0;
+	parser->topColor = 0;
+	parser->bottomColor = 0;
+	parser->NOcheck = 0;
+	parser->SOcheck = 0;
+	parser->EAcheck = 0;
+	parser->WEcheck = 0;
+	parser->Ccheck = 0;
+	parser->Scheck = 0;
+	parser->Fcheck = 0;
+	parser->Rcheck = 0;
+	parser->mapMaxLine = 0;
+	parser->mapLineCount = 0;
+	parser->NSWEcount = 0;
+	parser->sprites.count = 0;
+}
+
+int             main(int argc, char **argv)
 {
 	vars.mlx = mlx_init();
+	t_parser parser;
+	parser_init(&parser);
+	ft_parser(&parser, argv[1]);
+	init_sprites(&parser);
 
-	positions.posX = 22; 
-	positions.posY = 12;  //x and y start position
-	positions.dirX = -1; 
-	positions.dirY = 0; //initial direction vector
-	positions.planeX = 0;
-	positions.planeY = 0.66; //the 2d raycaster version of camera plane
-
-	vars.win  = mlx_new_window(vars.mlx, global.screenWidth, global.screenHeight, "Cub3D");
-	
-	data.img = mlx_new_image(vars.mlx, 1920, 1080);
+	vars.win  = mlx_new_window(vars.mlx, parser.screenWidth, parser.screenHeight, "Cub3D");
+	parser.data.img = mlx_new_image(vars.mlx, parser.screenWidth, parser.screenHeight);
 		
-	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
+	parser.data.addr = mlx_get_data_addr(parser.data.img, &parser.data.bits_per_pixel, &parser.data.line_length, &parser.data.endian);
 
-	int w, h;
-	dataTex.imgTex = mlx_xpm_file_to_image(vars.mlx, "./textures/greystone.xpm", &w, &h);
-	dataTex.addrTex = mlx_get_data_addr(dataTex.imgTex, &dataTex.bits_per_pixel_tex, &dataTex.line_length_tex, &dataTex.endianTex);
+	int wN, hN;
+	parser.dataTexN.img = mlx_xpm_file_to_image(vars.mlx, parser.texNpath, &wN, &hN);
+	parser.dataTexN.addr = mlx_get_data_addr(parser.dataTexN.img, &parser.dataTexN.bits_per_pixel, &parser.dataTexN.line_length, &parser.dataTexN.endian);
 
-	draw_image();
-	parser();
+	int wS, hS;
+	parser.dataTexS.img = mlx_xpm_file_to_image(vars.mlx, parser.texSpath, &wS, &hS);
+	parser.dataTexS.addr = mlx_get_data_addr(parser.dataTexS.img, &parser.dataTexS.bits_per_pixel, &parser.dataTexS.line_length, &parser.dataTexS.endian);
+
+	int wE, hE;
+	parser.dataTexE.img = mlx_xpm_file_to_image(vars.mlx, parser.texEpath, &wE, &hE);
+	parser.dataTexE.addr = mlx_get_data_addr(parser.dataTexE.img, &parser.dataTexE.bits_per_pixel, &parser.dataTexE.line_length, &parser.dataTexE.endian);
+
+	int wW, hW;
+	parser.dataTexW.img = mlx_xpm_file_to_image(vars.mlx, parser.texWpath, &wW, &hW);
+	parser.dataTexW.addr = mlx_get_data_addr(parser.dataTexW.img, &parser.dataTexW.bits_per_pixel, &parser.dataTexW.line_length, &parser.dataTexW.endian);
+
+	int wSpr, hSpr;
+	parser.dataSpr.img = mlx_xpm_file_to_image(vars.mlx, parser.spritePath, &wSpr, &hSpr);
+	parser.dataSpr.addr = mlx_get_data_addr(parser.dataSpr.img, &parser.dataSpr.bits_per_pixel, &parser.dataSpr.line_length, &parser.dataSpr.endian);
+
+	if (argc == 1)
+	{
+		printf("Please enter a map file!\n");
+		cub_close();
+	}
+	if (argc > 3)
+	{
+		printf("Too many arguments!\n");
+		cub_close();
+	}
+	if (ft_compare(argv[2], "--save"))
+	{
+		draw_image(&parser);
+		ft_screenshot(&parser);
+		cub_close();
+	}
+	else if (argc == 3)
+	{
+		printf("Second argument error!!!\n");
+		cub_close();
+	}
 	mlx_hook(vars.win, 17, 1L << 17, cub_close, 0);
 	mlx_hook(vars.win, 2, 1L << 0, key_press, 0);
 	mlx_hook(vars.win, 3, 1L << 0, key_release , 0);
-	// mlx_key_hook(vars.win, key_hook, &vars);
-	mlx_loop_hook(vars.mlx, frame, 0);
+	mlx_loop_hook(vars.mlx, frame, &parser);
 	mlx_loop(vars.mlx);
 }

@@ -3,46 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cdittric <cdittric@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ster-min <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/23 23:16:19 by cdittric          #+#    #+#             */
-/*   Updated: 2017/11/30 15:20:31 by cdittric         ###   ########.fr       */
+/*   Created: 2021/02/02 17:00:53 by ster-min          #+#    #+#             */
+/*   Updated: 2021/02/02 17:15:43 by ster-min         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
+#include "../libs/libft/libft.h"
 # include <unistd.h>
 # include <stdlib.h>
-# define BUFF_SIZE 1
+# include <fcntl.h>
+# include <stdio.h>
 
-/*
-** t_f: Chained file info list element
-** d	File descriptor
-** s	Line buffer size
-** b	Line buffer
-** t	Pointer to temporary buffer used when reallocating line buffer
-** r	Read buffer
-** i	Index of next character to read in read buffer
-** j 	Number of characters in read buffer
-** k	Line buffer iterator
-** n	Next element in chained list
-*/
+#define BUFFER_SIZE 1
 
-typedef struct	s_f
-{
-	int				d;
-	int				s;
-	char			*b;
-	char			*t;
-	char			r[BUFF_SIZE];
-	int				i;
-	int				j;
-	int				k;
-	struct s_f		*n;
-}				t_f;
-
-int				get_next_line(const int fd, char **line);
+int		get_next_line(int fd, char **line);
+char	*get_line_gnl(char *str, int len);
+char	*ft_strjoin_gnl(char *string, char *buff);
+size_t	ft_strlen(const char *s);
+char	*ft_substr_gnl(char const *s, int len);
 
 #endif

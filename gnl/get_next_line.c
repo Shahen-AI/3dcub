@@ -3,40 +3,78 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cdittric <cdittric@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ster-min <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/23 23:16:23 by cdittric          #+#    #+#             */
-/*   Updated: 2017/11/30 15:19:18 by cdittric         ###   ########.fr       */
+/*   Created: 2021/02/02 17:00:19 by ster-min          #+#    #+#             */
+/*   Updated: 2021/02/02 17:00:21 by ster-min         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int		get_next_line(const int fd, char **line)
+int		bsn_len(char *str)
 {
-	static t_f		*openfiles;
-	t_f				*f;
-	int				i;
+	int i;
 
-	f = openfiles;
-	while (!(i = 0) && f && f->d != fd)
-		f = f->n;
-	if (fd < 0 || (!f && (!(f = malloc(sizeof(*f))) ||
-		((f->n = openfiles) && 0) || (f->d *= 0) || (f->d += fd) < 0 ||
-		!(openfiles = f) || (f->i *= 0) || (f->j *= 0))) || (f->s *= 0))
-		return (-1);
-	while (!(f->k *= 0) && (f->i < f->j || (!(f->i *= 0) && (f->j = read(fd,
-		f->r, BUFF_SIZE)) > 0)) && (f->s == 0 || f->r[f->i] != 10 || !(++f->i)))
+	i = 0;
+	if (!str)
+		return (0);
+	while (str && str[i] && str[i] != '\n')
+		++i;
+	return (i);
+}
+
+int		bsn_check(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
 	{
-		if (i + BUFF_SIZE >= f->s && (f->k -= 1) && ((f->t = f->b) || 1)
-				&& (f->b = (char *)malloc(sizeof(char) * (i + BUFF_SIZE + 1))))
-			while (++(f->k) < i && (f->k) < f->s)
-				free(((f->b[f->k] = f->t[f->k]) && (f->k + 1 < i) ? 0 : f->t));
-		if (i + BUFF_SIZE >= f->s && ((!f->b && ((f->b = f->t) || 1))
-					|| !(f->s = i + BUFF_SIZE + 1)))
-			return (-1);
-		while (f->i < f->j && f->r[f->i] != '\n')
-			f->b[i++] = f->r[f->i++];
+		if (str[i] == '\n')
+			return (1);
+		++i;
 	}
-	return ((i || f->j > 0) && (*line = f->b) && !(f->b[i] *= 0) ? 1 : f->j);
+	return (0);
+}
+
+int		ft_output(char *new_line, int st_i)
+{
+	int i;
+
+	i = 0;
+	if (!new_line)
+		return (0);
+	if (new_line[st_i] == '\n')
+		i = 1;
+	return (i);
+}
+
+int		get_next_line(int fd, char **line)
+{
+	static char	*new_line;
+	char		*buff;
+	ssize_t		ret;
+	int			len;
+	int			out;
+
+	out = 0;
+	if (fd < 0 || BUFFER_SIZE <= 0 ||
+	(!(buff = malloc(sizeof(char) * BUFFER_SIZE + 1))))
+		return (-1);
+	while ((ret = read(fd, buff, BUFFER_SIZE)) > 0)
+	{
+		buff[ret] = '\0';
+		new_line = ft_strjoin_gnl(new_line, buff);
+		if (bsn_check(new_line))
+			break ;
+	}
+	free(buff);
+	if (ret < 0)
+		return (-1);
+	len = bsn_len(new_line);
+	*line = ft_substr_gnl(new_line, len);
+	out = ft_output(new_line, len);
+	new_line = get_line_gnl(new_line, len);
+	return (out);
 }
